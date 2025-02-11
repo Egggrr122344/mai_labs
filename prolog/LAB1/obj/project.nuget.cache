@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "kAvmH9/onaBqlnYWi+wG+YyMMDdNC1+1GBio5UDaa4UsAM6WKbCZhZJnFimnTpTsQwCdEFQHWkN0Tl6EbzIGcw==",
+  "success": true,
+  "projectFilePath": "/home/ackerman/FUNC/LAB1/LAB1.fsproj",
+  "expectedPackageFiles": [
+    "/home/ackerman/.nuget/packages/fsharp.core/8.0.200/fsharp.core.8.0.200.nupkg.sha512"
+  ],
+  "logs": []
+}

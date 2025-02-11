@@ -1,0 +1,173 @@
+\section*{Введение}
+Алгоритм LZ77 является одним из ключевых методов сжатия данных, основанным на поиске повторяющихся последовательностей символов. Его суть заключается в представлении данных в виде троек $(o\!ffset, len, char)$, где:
+\begin{itemize}
+    \item $o\!ffset$ — расстояние до начала совпадающей подстроки,
+    \item $len$ — длина совпадения,
+    \item $char$ — символ, который завершает последовательность.
+\end{itemize}
+Цель работы — разработать программу на языке C++, реализующую алгоритм LZ77 для сжатия и восстановления текста.
+
+\section*{Описание работы алгоритма}
+Алгоритм сжатия работает следующим образом:
+\begin{enumerate}
+    \item На каждом шаге анализируется подстрока, которая была просмотрена ранее.
+    \item Ищется максимальная длина совпадения в ранее просмотренной части текста.
+    \item Если совпадение найдено, генерируется тройка $(o\!ffset, len, char)$. Если совпадение отсутствует, длина совпадения равна нулю, а $char$ берётся из текущего символа текста.
+\end{enumerate}
+
+Декодирование троек осуществляется путём последовательного восстановления текста с использованием смещений и длин.
+
+\section*{Сложность алгоритма}
+Временная сложность алгоритма:
+\begin{itemize}
+    \item Сжатие: $O(n^2)$, где $n$ — длина входного текста. Основная сложность связана с поиском совпадений в ранее просмотренной части текста.
+    \item Декодирование: $O(n \cdot l)$, где $l$ — средняя длина совпадений.
+\end{itemize}
+Пространственная сложность зависит от размера закодированного текста и, в среднем, значительно меньше исходного ввиду эффективности алгоритма.
+
+\section*{Результаты}
+Программа успешно реализует алгоритм LZ77. Проведены тесты, показавшие правильность работы как сжатия, так и декодирования текста. Например:
+\begin{itemize}
+    \item Для строки \texttt{abracadabra} программа генерирует тройки:
+    \begin{verbatim}
+    0 0 a
+    0 0 b
+    0 0 r
+    3 1 c
+    2 1 d
+    7 4
+    \end{verbatim}
+    \item При декодировании троек восстанавливается исходная строка \texttt{abracadabra}.
+\end{itemize}
+
+\section*{Листинг программы}
+Ниже представлен код программы, реализующий алгоритм LZ77:
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+struct Triplet {
+    int offset = 0;  
+    int len = 0;      
+    char next_char;   
+};
+
+
+void print_encoded(const vector<Triplet>& encoded) {
+    for (const auto& t : encoded) {
+        cout << t.offset << " " << t.len;
+        if (t.len == 0 || t.offset > 0) {
+            if (t.next_char != '\0' && isalpha(t.next_char)) {
+                cout << " " << t.next_char;
+            }
+        }
+        cout << endl;
+    }
+}
+
+vector<Triplet> encode_lz77(const string& data) {
+    vector<Triplet> encoded;
+    int pos = 0;
+
+    while (pos < data.size()) {
+        Triplet t;
+        int max_len = 0;
+        int best_offset = 0;
+
+        for (int offset = 1; offset <= pos; ++offset) {
+            int length = 0;
+            while (pos + length < data.size() && data[pos - offset + length] == data[pos + length]) {
+                ++length;
+            }
+
+            if (length > max_len) {
+                max_len = length;
+                best_offset = offset;
+            }
+        }
+
+        if (max_len > 0) {
+            t.offset = best_offset;
+            t.len = max_len;
+            t.next_char = (pos + max_len < data.size()) ? data[pos + max_len] : '\0';
+        } else {
+            t.offset = 0;
+            t.len = 0;
+            t.next_char = data[pos];
+        }
+
+        encoded.push_back(t);
+        pos += max_len + 1;
+    }
+
+    return encoded;
+}
+
+string decode_lz77(const vector<Triplet>& encoded) {
+    string text;
+
+    for (const auto& code : encoded) {
+        int startPos = text.length() - code.offset;
+        for (int i = 0; i < code.len; ++i) {
+            text += text[startPos + i];
+        }
+        if (code.next_char != '\0') {
+            text += code.next_char;
+        }
+    }
+
+    return text;
+}
+
+
+vector<Triplet> parse_encoded(const string& input) {
+    vector<Triplet> encoded;
+    stringstream ss(input);
+    Triplet t;
+
+    while (ss >> t.offset >> t.len) {
+        if (ss >> t.next_char) {
+            encoded.push_back(t);
+        } else {
+            t.next_char = '\0';
+            encoded.push_back(t);
+        }
+    }
+
+    return encoded;
+}
+
+int main() {
+    string mode;
+    getline(cin, mode);
+
+    if (mode == "compress") {
+        string data;
+        getline(cin, data);
+
+        vector<Triplet> encoded = encode_lz77(data);
+        print_encoded(encoded);
+    } else if (mode == "decompress") {
+        string encoded_data, line;
+
+        while (getline(cin, line)) {
+            encoded_data += line + "\n";
+        }
+
+        vector<Triplet> parsed = parse_encoded(encoded_data);
+        string decoded = decode_lz77(parsed);
+
+        cout << decoded << endl;
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Заключение}
+Реализованный алгоритм успешно демонстрирует возможности эффективного сжатия текста методом LZ77. Полученные результаты подтверждают правильность работы программы. В дальнейшем возможно улучшение временной сложности сжатия путём использования структур данных, таких как хэш-таблицы или суффиксные деревья, а также комбинирование алгоритма с другими такими как алгоритм Хаффмана.

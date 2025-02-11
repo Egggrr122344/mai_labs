@@ -1,0 +1,164 @@
+\section*{Курсовая работа: Реализация алгоритма LZ77}
+
+\subsection*{Описание задания}
+
+В рамках данной курсовой работы требуется реализовать алгоритм LZ77 для сжатия и восстановления текста. Работа должна учитывать следующие условия:
+
+\begin{enumerate}
+  \item \textbf{Алгоритм сжатия:}
+  \begin{itemize}
+    \item Поиск совпадений выполняется по всему ранее просмотренному тексту (без ограничения окна).
+    \item На вход подается команда \texttt{compress} с текстом, состоящим только из строчных латинских букв.
+    \item Результатом работы является последовательность троек вида $(offset, length, char)$, где:
+    \begin{itemize}
+      \item $offset$ --- смещение от текущей позиции к началу совпадения.
+      \item $length$ --- длина совпадения.
+      \item $char$ --- символ, следующий за совпадением. Если его нет, то тройка заканчивается на $offset$ и $length$.
+    \end{itemize}
+  \end{itemize}
+
+  \item \textbf{Алгоритм восстановления:}
+  \begin{itemize}
+    \item На вход подается команда \texttt{decompress} с последовательностью троек вида $(offset, length, char)$.
+    \item Результатом работы должен быть текст, соответствующий сжатой последовательности троек.
+    \item Если символ $char$ отсутствует в тройке, это означает конец текста.
+  \end{itemize}
+
+  \item \textbf{Формат ввода и вывода:}
+  \begin{itemize}
+    \item \textbf{Сжатие:}
+      \begin{itemize}
+        \item На вход: \texttt{compress <text>}.
+        \item На выход: последовательность троек, каждая из которых выводится на отдельной строке.
+      \end{itemize}
+    \item \textbf{Восстановление:}
+      \begin{itemize}
+        \item На вход: \texttt{decompress <triplets>}.
+        \item На выход: восстановленный текст.
+      \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\subsection*{Описание алгоритма}
+
+\subsubsection*{Алгоритм сжатия (LZ77 Compress)}
+
+Алгоритм сжатия LZ77 работает на основе нахождения повторяющихся последовательностей символов в тексте. Основные шаги:
+
+\begin{enumerate}
+  \item \textbf{Инициализация:}
+    \begin{itemize}
+      \item Установите текущую позицию в начало текста.
+    \end{itemize}
+
+  \item \textbf{Поиск совпадений:}
+    \begin{itemize}
+      \item Для текущей позиции выполните поиск наибольшего совпадения с ранее просмотренным текстом.
+      \item Найденное совпадение характеризуется двумя параметрами:
+        \begin{itemize}
+          \item $offset$ --- расстояние от текущей позиции до начала совпадения.
+          \item $length$ --- длина совпадающей последовательности.
+        \end{itemize}
+    \end{itemize}
+
+  \item \textbf{Добавление новой тройки:}
+    \begin{itemize}
+      \item Если совпадение найдено, то за ним следует символ $char$, который не входит в совпадение.
+      \item Если совпадения нет, создайте тройку $(0, 0, char)$, где $char$ --- текущий символ текста.
+    \end{itemize}
+
+  \item \textbf{Обновление текущей позиции:}
+    \begin{itemize}
+      \item Переместите текущую позицию вперед на длину совпадения плюс один символ.
+    \end{itemize}
+
+  \item Повторите шаги 2--4, пока не будет обработан весь текст.
+\end{enumerate}
+
+\subsubsection*{Алгоритм восстановления (LZ77 Decompress)}
+
+Для восстановления текста из троек $(offset, length, char)$ используйте следующие шаги:
+
+\begin{enumerate}
+  \item \textbf{Инициализация:}
+    \begin{itemize}
+      \item Создайте пустую строку для результата.
+    \end{itemize}
+
+  \item \textbf{Обработка троек:}
+    \begin{itemize}
+      \item Для каждой тройки $(offset, length, char)$ выполните:
+        \begin{itemize}
+          \item Если $length > 0$, скопируйте $length$ символов, начиная с позиции $len(result) - offset$ в уже восстановленном тексте.
+          \item Если $char$ присутствует, добавьте его в конец текста.
+        \end{itemize}
+    \end{itemize}
+
+  \item Повторяйте шаг 2 для всех троек, пока они не будут обработаны.
+\end{enumerate}
+
+\subsection*{Пример пошагового выполнения}
+
+\subsubsection*{Входной текст: \texttt{abracadabra}}
+
+\begin{enumerate}
+  \item Начинаем с позиции 0:
+    \begin{itemize}
+      \item Нет совпадений, добавляем $(0, 0, a)$.
+      \item Результат: \texttt{a}.
+    \end{itemize}
+
+  \item Позиция 1:
+    \begin{itemize}
+      \item Нет совпадений, добавляем $(0, 0, b)$.
+      \item Результат: \texttt{ab}.
+    \end{itemize}
+
+  \item Позиция 2:
+    \begin{itemize}
+      \item Нет совпадений, добавляем $(0, 0, r)$.
+      \item Результат: \texttt{abr}.
+    \end{itemize}
+
+  \item Позиция 3:
+    \begin{itemize}
+      \item Совпадение длиной 1 (\texttt{a}), добавляем $(3, 1, c)$.
+      \item Результат: \texttt{abrac}.
+    \end{itemize}
+
+  \item Продолжайте до конца текста.
+\end{enumerate}
+
+\subsection*{Примеры тестов}
+
+\subsubsection*{Тест 1: Сжатие}
+
+\begin{verbatim}
+Ввод:
+compress abracadabra
+
+Вывод:
+0 0 a
+0 0 b
+0 0 r
+3 1 c
+2 1 d
+7 4
+\end{verbatim}
+
+\subsubsection*{Тест 2: Восстановление}
+
+\begin{verbatim}
+Ввод:
+decompress
+0 0 a
+0 0 b
+0 0 r
+3 1 c
+2 1 d
+7 4
+
+Вывод:
+abracadabra
+\end{verbatim}
+
