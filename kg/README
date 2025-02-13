@@ -1,8 +1,6 @@
 Лабораторные работы по компьютерной графике с использованием OpenGL.
-````markdown
+
 Чтобы скомпилировать файл, используйте команду:
 
-```
-g++ main.cpp -lsfml-graphics -lsfml-window -lsfml-system -lGL -lGLU -std=c++11
-```
-````
+```g++ main.cpp -lsfml-graphics -lsfml-window -lsfml-system -lGL -lGLU -std=c++11```
+
