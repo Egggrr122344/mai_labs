@@ -1,2 +1,4 @@
 Лабораторные работы по компьютерной графике с использованием OpenGL.
-    При компиляции указать флаги `cpp-lsfml-graphics -lsfml-window -lsfml-system -lGL -lGLU -std=c++11`
+    При компиляции указать флаги cpp ```
+-lsfml-graphics -lsfml-window -lsfml-system -lGL -lGLU -std=c++11
+```
