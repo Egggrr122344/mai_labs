@@ -3,6 +3,8 @@
 Чтобы скомпилировать файл, используйте команду:
 
 ````markdown
-`g++ main.cpp -lsfml-graphics -lsfml-window -lsfml-system -lGL -lGLU -std=c++11`
+```bash
+g++ main.cpp -lsfml-graphics -lsfml-window -lsfml-system -lGL -lGLU -std=c++11
+```
 ````
 
